@@ -49,11 +49,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    private CorsConfigurationSource corsConfigurationSource () {
+    public CorsConfigurationSource corsConfigurationSource () {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:5179"));
-        corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","POST"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
         corsConfiguration.setMaxAge(3600L);

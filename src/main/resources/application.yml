@@ -3,18 +3,14 @@ spring:
     name: healtheng_auth
   datasource:
     jpa:
-      properties:
-        hibernate:
-          hbm2ddl:
-            auto: update
-          show: false
-          format: false
-        url: jdbc:postgresql://localhost:5432/healtheung_auth
-        username: sa
-        password: 1
-        driver-class-name: org.postgresql.Driver
-    postgresql:
-      url: jdbc:postgresql://localhost:5432/healtheung_auth
+      jdbc-url: ${POSTGRESQL_URI:jdbc:postgresql://localhost:5432/health_auth}
       username: sa
       password: 1
       driver-class-name: org.postgresql.Driver
+#  datasource:
+#    jpa:
+#      url: jdbc:postgresql://localhost:5432/health_auth
+#      username: sa
+#      password: 1
+#      driver-class-name: org.postgresql.Driver
+

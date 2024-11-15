@@ -1,13 +1,21 @@
 package com.seung.healtheng_auth.config;
 
+import com.seung.healtheng_auth.filter.JWTFilter;
+import com.seung.healtheng_auth.handler.CustomFormSuccessHandler;
+import com.seung.healtheng_auth.handler.CustomOauth2SuccessHandler;
+import com.seung.healtheng_auth.service.oauth2.CustomOAuth2UserService;
+import com.seung.healtheng_auth.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -18,7 +26,17 @@ import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final JWTUtil jwtUtil;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
+    private final CustomFormSuccessHandler customFormSuccessHandler;
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -33,6 +51,19 @@ public class SecurityConfig {
         http
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()));
         http
+                .formLogin((form)->form
+                        .loginPage("/login")
+                        .successHandler(customFormSuccessHandler)
+                );
+
+        http
+                .oauth2Login((oauth2)->oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService))
+                        .successHandler(customOauth2SuccessHandler)
+                );
+        http
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/join", "/").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
@@ -41,6 +72,10 @@ public class SecurityConfig {
                 );
         http
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // jwt filter등록
+        http
+                .addFilterAfter(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
 
 
@@ -57,7 +92,7 @@ public class SecurityConfig {
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
         corsConfiguration.setMaxAge(3600L);
-        corsConfiguration.setExposedHeaders(Collections.singletonList("access"));
+        corsConfiguration.setExposedHeaders(Arrays.asList("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration); // 모든 경로에 대해 CORS 설정 적용

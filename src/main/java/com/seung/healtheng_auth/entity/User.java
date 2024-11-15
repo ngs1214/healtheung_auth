@@ -1,6 +1,5 @@
 package com.seung.healtheng_auth.entity;
 
-import com.seung.healtheng_auth.dto.JoinDTO;
 import com.seung.healtheng_auth.enums.Gender;
 import com.seung.healtheng_auth.enums.Role;
 import jakarta.persistence.*;

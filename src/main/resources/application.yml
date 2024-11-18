@@ -5,6 +5,10 @@ spring:
     name: healtheng_auth
   jwt:
     secret: 1asdfasdf354sdfsgjsdfgjk5sdfgjksdfgasdf
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
   datasource:
     jpa:
       jdbc-url: ${POSTGRESQL_URI:jdbc:postgresql://localhost:5432/health_auth}

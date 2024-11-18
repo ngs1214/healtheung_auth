@@ -1,34 +1,31 @@
-package com.seung.healtheng_auth.dto;
+package com.seung.healtheng_auth.dto.oauth2;
 
 import java.util.Map;
 
-public class SeungResponse implements OAuth2Response{
+public class NaverResponse implements OAuth2Response{
 
     private final Map<String, Object> attribute;
 
-    public SeungResponse(Map<String, Object> attribute) {
+    public NaverResponse(Map<String,Object> attribute) {
         this.attribute = (Map<String, Object>) attribute.get("response");
     }
-
-
     @Override
     public String getProvider() {
-        return "seung";
+        return "naver";
     }
 
     @Override
     public String getProviderId() {
-        //임시
-        return "123123123";
+        return attribute.get("id").toString();
     }
 
     @Override
     public String getEmail() {
-        return attribute.get("username").toString() + "@seung.com";
+        return attribute.get("email").toString();
     }
 
     @Override
     public String getName() {
-        return attribute.get("username").toString();
+        return attribute.get("name").toString();
     }
 }

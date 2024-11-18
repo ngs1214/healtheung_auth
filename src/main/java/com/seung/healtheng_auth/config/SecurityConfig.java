@@ -3,12 +3,10 @@ package com.seung.healtheng_auth.config;
 import com.seung.healtheng_auth.filter.CustomLogoutFilter;
 import com.seung.healtheng_auth.filter.JWTFilter;
 import com.seung.healtheng_auth.filter.LoginFilter;
-import com.seung.healtheng_auth.handler.CustomFormSuccessHandler;
 import com.seung.healtheng_auth.handler.CustomOauth2SuccessHandler;
 import com.seung.healtheng_auth.service.RefreshService;
-import com.seung.healtheng_auth.service.oauth2.CustomOAuth2UserService;
+import com.seung.healtheng_auth.service.CustomOAuth2UserService;
 import com.seung.healtheng_auth.util.JWTUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +24,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity

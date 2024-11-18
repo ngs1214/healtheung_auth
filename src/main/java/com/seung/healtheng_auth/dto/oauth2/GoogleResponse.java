@@ -1,4 +1,4 @@
-package com.seung.healtheng_auth.dto;
+package com.seung.healtheng_auth.dto.oauth2;
 
 import java.util.Map;
 

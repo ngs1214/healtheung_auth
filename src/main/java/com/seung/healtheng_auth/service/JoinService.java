@@ -1,4 +1,4 @@
-package com.seung.healtheng_auth.service.form;
+package com.seung.healtheng_auth.service;
 
 import com.seung.healtheng_auth.dto.JoinDTO;
 import com.seung.healtheng_auth.entity.User;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class JoinService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     public Long join(JoinDTO joinDTO) {

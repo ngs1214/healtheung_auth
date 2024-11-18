@@ -1,6 +1,10 @@
-package com.seung.healtheng_auth.service.oauth2;
+package com.seung.healtheng_auth.service;
 
 import com.seung.healtheng_auth.dto.*;
+import com.seung.healtheng_auth.dto.oauth2.GoogleResponse;
+import com.seung.healtheng_auth.dto.oauth2.NaverResponse;
+import com.seung.healtheng_auth.dto.oauth2.OAuth2Response;
+import com.seung.healtheng_auth.dto.oauth2.SeungResponse;
 import com.seung.healtheng_auth.entity.User;
 import com.seung.healtheng_auth.enums.Role;
 import com.seung.healtheng_auth.repository.UserRepository;

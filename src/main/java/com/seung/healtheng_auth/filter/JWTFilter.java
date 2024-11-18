@@ -28,11 +28,12 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = null;
-        accessToken = request.getHeader("authorization");
+        accessToken = request.getHeader("Authorization");
 
         if (accessToken == null) {
             //토큰 없음
             filterChain.doFilter(request,response);
+            return;
         }
 
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음

@@ -53,6 +53,7 @@ public class SecurityConfig {
         http
                 .formLogin((form)->form
                         .loginPage("/login")
+                        .loginProcessingUrl("/login")
                         .successHandler(customFormSuccessHandler)
                 );
 
@@ -87,7 +88,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource () {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:5179"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST","DELETE","PUT"));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(Arrays.asList("*"));

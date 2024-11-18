@@ -6,6 +6,7 @@ import com.seung.healtheng_auth.service.form.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -14,7 +15,8 @@ public class JoinController {
     private final UserService userService;
 
     @PostMapping("/join")
-    public ResponseEntity<?> join(JoinDTO joinDTO) {
+    public ResponseEntity<?> join(@RequestBody JoinDTO joinDTO) {
+        System.out.println("joinDTO = " + joinDTO);
         return ResponseEntity.ok(userService.join(joinDTO));
     }
 

@@ -3,12 +3,14 @@ package com.seung.healtheng_auth.dto;
 import com.seung.healtheng_auth.entity.User;
 import com.seung.healtheng_auth.enums.Gender;
 import com.seung.healtheng_auth.enums.Role;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 
 @Data
+@AllArgsConstructor
 public class JoinDTO {
     private String userId;
     private String password;

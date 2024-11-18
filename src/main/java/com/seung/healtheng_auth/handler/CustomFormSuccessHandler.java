@@ -1,6 +1,7 @@
 package com.seung.healtheng_auth.handler;
 
 import com.seung.healtheng_auth.dto.CustomUserDetails;
+import com.seung.healtheng_auth.enums.Role;
 import com.seung.healtheng_auth.util.JWTUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +30,7 @@ public class CustomFormSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         Iterator<? extends GrantedAuthority> iterator = authentication.getAuthorities().iterator();
         GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
+        Role role = Role.valueOf(auth.getAuthority());
 
         String accessToken = jwtUtil.createJwt("access",userId, role, 600000L);
         String refreshToken = jwtUtil.createJwt("refresh",userId, role, 86400000L);

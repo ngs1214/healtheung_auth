@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.seung.healtheng_auth.dto.CustomUserDetails;
 import com.seung.healtheng_auth.dto.LoginDTO;
 import com.seung.healtheng_auth.dto.UserDTO;
+import com.seung.healtheng_auth.enums.Role;
+import com.seung.healtheng_auth.service.RefreshService;
 import com.seung.healtheng_auth.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,61 +25,54 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.seung.healtheng_auth.util.CookieUtil.createCookie;
+
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshService refreshService;
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException{
         try {
             LoginDTO loginDTO = new ObjectMapper().readValue(request.getInputStream(), LoginDTO.class);
-            System.out.println("loginDTO = " + loginDTO);
-
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(loginDTO.getUserId(), loginDTO.getPassword(), null);
-            System.out.println("authToken = " + authToken);
+            //매니저가 검증 진행
             return authenticationManager.authenticate(authToken);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
+    //성공시에
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
-        String userId = customUserDetails.getUsername();
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
-        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        if (authorities != null && !authorities.isEmpty()) {
-            Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-            if (iterator.hasNext()) {
-                GrantedAuthority auth = iterator.next();
-                String role = auth.getAuthority();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        String username = customUserDetails.getUsername();
 
-                try {
-                    String access = jwtUtil.createJwt("access", userId, role, 600000L);
-                    System.out.println("access = " + access);
-                    response.setHeader("Authorization", "Bearer " + access);
-                    response.setStatus(HttpStatus.OK.value());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-                    response.getWriter().write("Token creation failed.");
-                }
-            } else {
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
-                response.getWriter().write("No authorities found.");
-            }
-        } else {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.getWriter().write("No authorities found.");
-        }
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        GrantedAuthority auth = iterator.next();
+
+        Role role = Role.valueOf(auth.getAuthority());
+
+        String access = jwtUtil.createJwt("access", username, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+
+        //Refresh 토큰 저장
+        refreshService.saveRefreshToken(username,refresh,86400000L);
+
+        //응답 설정
+        response.setHeader("Authorization","Bearer "+ access);
+        response.addCookie(createCookie("refreshToken","Bearer "+ refresh));
+        response.setStatus(HttpStatus.OK.value());
+
     }
-
+    //실패시에
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().write("Authentication failed: " + failed.getMessage());
-        failed.printStackTrace();
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+        response.setStatus(401);
     }
 }

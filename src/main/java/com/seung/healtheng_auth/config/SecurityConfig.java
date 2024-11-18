@@ -1,9 +1,11 @@
 package com.seung.healtheng_auth.config;
 
+import com.seung.healtheng_auth.filter.CustomLogoutFilter;
 import com.seung.healtheng_auth.filter.JWTFilter;
 import com.seung.healtheng_auth.filter.LoginFilter;
 import com.seung.healtheng_auth.handler.CustomFormSuccessHandler;
 import com.seung.healtheng_auth.handler.CustomOauth2SuccessHandler;
+import com.seung.healtheng_auth.service.RefreshService;
 import com.seung.healtheng_auth.service.oauth2.CustomOAuth2UserService;
 import com.seung.healtheng_auth.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,8 +37,8 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
-    private final CustomFormSuccessHandler customFormSuccessHandler;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final RefreshService refreshService;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -77,8 +80,10 @@ public class SecurityConfig {
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         http
-//                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil,refreshService), UsernamePasswordAuthenticationFilter.class);
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshService), LogoutFilter.class);
+
 
         http
                 .sessionManagement((session) -> session.

@@ -35,10 +35,10 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
-
+        String token = accessToken.split(" ")[1];
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음
         try {
-            jwtUtil.isExpired(accessToken);
+            jwtUtil.isExpired(token);
         } catch (ExpiredJwtException e) {
 
             //response body
@@ -51,7 +51,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         // 토큰이 access인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(accessToken);
+        String category = jwtUtil.getCategory(token);
 
         if (!category.equals("access")) {
 
@@ -67,11 +67,10 @@ public class JWTFilter extends OncePerRequestFilter {
         //토큰에서 username과 role 획득
 
         UserDTO userDTO = UserDTO.builder()
-                .userId(jwtUtil.getUserId(accessToken))
-                .userRole(jwtUtil.getRole(accessToken))
+                .userId(jwtUtil.getUserId(token))
+                .userRole(jwtUtil.getRole(token))
                 .build();
-        userDTO.setUserId(jwtUtil.getUserId(accessToken));
-        userDTO.setUserRole(jwtUtil.getRole(accessToken));
+
         CustomUserDetails customUserDetails = new CustomUserDetails(userDTO);
         //스프링 시큐리티 인증 토큰 생성
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());

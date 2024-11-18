@@ -1,5 +1,6 @@
 package com.seung.healtheng_auth.entity;
 
+import com.seung.healtheng_auth.dto.UserDTO;
 import com.seung.healtheng_auth.enums.Gender;
 import com.seung.healtheng_auth.enums.Role;
 import jakarta.persistence.*;
@@ -50,5 +51,15 @@ public class User {
         this.eMail = eMail;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    // User 엔티티를 UserDTO로 변환하는 메서드
+    public UserDTO toDto() {
+        return UserDTO.builder()
+                .userId(this.userId)
+                .password(this.password)
+                .username(this.userName)
+                .userRole(this.userRole)
+                .build();
     }
 }

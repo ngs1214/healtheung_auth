@@ -1,6 +1,7 @@
 package com.seung.healtheng_auth.config;
 
 import com.seung.healtheng_auth.filter.JWTFilter;
+import com.seung.healtheng_auth.filter.LoginFilter;
 import com.seung.healtheng_auth.handler.CustomFormSuccessHandler;
 import com.seung.healtheng_auth.handler.CustomOauth2SuccessHandler;
 import com.seung.healtheng_auth.service.oauth2.CustomOAuth2UserService;
@@ -9,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,10 +35,16 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomOauth2SuccessHandler customOauth2SuccessHandler;
     private final CustomFormSuccessHandler customFormSuccessHandler;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
@@ -45,18 +54,9 @@ public class SecurityConfig {
         http
                 .formLogin(AbstractHttpConfigurer::disable);
         http
-                .oauth2Login(AbstractHttpConfigurer::disable);
-        http
                 .httpBasic(AbstractHttpConfigurer::disable);
         http
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource()));
-        http
-                .formLogin((form)->form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .successHandler(customFormSuccessHandler)
-                );
-
         http
                 .oauth2Login((oauth2)->oauth2
                         .loginPage("/login")
@@ -71,16 +71,18 @@ public class SecurityConfig {
                         .requestMatchers("/refresh").permitAll()
                         .anyRequest().authenticated()
                 );
-        http
-                .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
 
         // jwt filter등록
         http
-                .addFilterAfter(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+        http
+//                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
-
-
-
+        http
+                .sessionManagement((session) -> session.
+                        sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 

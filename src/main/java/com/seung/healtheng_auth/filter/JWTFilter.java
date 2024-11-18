@@ -2,6 +2,7 @@ package com.seung.healtheng_auth.filter;
 
 import com.seung.healtheng_auth.dto.CustomUserDetails;
 import com.seung.healtheng_auth.dto.UserDTO;
+import com.seung.healtheng_auth.enums.Role;
 import com.seung.healtheng_auth.util.JWTUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -68,7 +69,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         UserDTO userDTO = UserDTO.builder()
                 .userId(jwtUtil.getUserId(token))
-                .userRole(jwtUtil.getRole(token))
+                .userRole(Role.valueOf(jwtUtil.getRole(token)))
                 .build();
 
         CustomUserDetails customUserDetails = new CustomUserDetails(userDTO);

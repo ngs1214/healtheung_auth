@@ -30,7 +30,7 @@ public class CustomOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         Iterator<? extends GrantedAuthority> iterator = authentication.getAuthorities().iterator();
         GrantedAuthority auth = iterator.next();
-        Role role = Role.valueOf(auth.getAuthority());
+        String role = auth.getAuthority();
 
         String accessToken = jwtUtil.createJwt("access",userId, role, 600000L);
         String refreshToken = jwtUtil.createJwt("refresh",userId, role, 86400000L);

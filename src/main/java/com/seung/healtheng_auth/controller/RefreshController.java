@@ -57,7 +57,7 @@ public class RefreshController {
         }
 
         String userId = jwtUtil.getUserId(refreshToken);
-        Role role = jwtUtil.getRole(refreshToken);
+        String role = jwtUtil.getRole(refreshToken);
 
 
         //make new JWT

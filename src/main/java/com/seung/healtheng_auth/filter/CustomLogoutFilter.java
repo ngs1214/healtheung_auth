@@ -49,6 +49,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
                 refreshToken = value.replace("Bearer ", "");
             }
         }
+        System.out.println("refreshToken = " + refreshToken);
         //refresh null check
         if (refreshToken == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -60,6 +61,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
             jwtUtil.isExpired(refreshToken);
         } catch (ExpiredJwtException e) {
             //response status code
+            System.out.println("만료");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -68,6 +70,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String category = jwtUtil.getCategory(refreshToken);
         if (!category.equals("refresh")) {
             //response status code
+            System.out.println("Refresh확인");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -76,6 +79,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         Boolean isExist = refreshService.getRefreshToken(jwtUtil.getUserId(refreshToken));
         if (!isExist) {
             //response status code
+            System.out.println("redis확인");
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -85,7 +89,7 @@ public class CustomLogoutFilter extends GenericFilterBean {
         refreshService.deleteRefreshToken(jwtUtil.getUserId(refreshToken));
 
         //Refresh 토큰 Cookie 값 0
-        Cookie cookie = new Cookie("refresh", null);
+        Cookie cookie = new Cookie("refreshToken", null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
 

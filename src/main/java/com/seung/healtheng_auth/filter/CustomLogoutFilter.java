@@ -49,7 +49,6 @@ public class CustomLogoutFilter extends GenericFilterBean {
                 refreshToken = value.replace("Bearer ", "");
             }
         }
-        System.out.println("refreshToken = " + refreshToken);
         //refresh null check
         if (refreshToken == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

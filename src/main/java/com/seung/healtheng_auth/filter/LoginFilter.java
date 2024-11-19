@@ -50,7 +50,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
+        String userId = customUserDetails.getUsername();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -58,15 +58,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String access = jwtUtil.createJwt("access", username, role, 600000L);
-        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+        String accessToken = jwtUtil.createJwt("access", userId, role, 600000L);
+        String refreshToken = jwtUtil.createJwt("refresh", userId, role, 86400000L);
 
         //Refresh 토큰 저장
-        refreshService.saveRefreshToken(username,refresh,86400000L);
+        refreshService.saveRefreshToken(userId,refreshToken,86400000L);
 
         //응답 설정
-        response.setHeader("Authorization","Bearer "+ access);
-        response.addCookie(createCookie("refreshToken","Bearer "+ refresh));
+        response.setHeader("Authorization","Bearer "+ accessToken);
+        response.addCookie(createCookie("refreshToken","Bearer "+ refreshToken));
         response.setStatus(HttpStatus.OK.value());
 
     }
